@@ -22,16 +22,13 @@ if(isset($_POST["skey"]) && $_POST["phone"]) {
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
-
         $sql = "INSERT INTO receive (phone) VALUES ('$phone')";
-
         if ($conn->query($sql) === TRUE) {
             //please make sure to give us a response if you are able to upadte your db
             echo "true";
         } else {
             echo "false";
         }
-
         $conn->close();
     } else {
         //handle this
