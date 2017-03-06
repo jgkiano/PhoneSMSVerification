@@ -10,8 +10,8 @@ class MailMan extends Master
 		$this -> conn = $this -> getConnection();
 	}
 
-    public function sendData($phone) {
-        $data = array('phone' => $phone, 'skey' => SKEY);
+    public function sendData($phone, $clickId) {
+        $data = array('phone' => $phone, 'click_id' => $clickId, 'skey' => SKEY);
         // use key 'http' even if you send the request to https://...
         $options = array(
             'http' => array(
@@ -21,21 +21,21 @@ class MailMan extends Master
             ));
         $context  = stream_context_create($options);
         $result = file_get_contents(REMOTEURL, false, $context);
-        var_dump($result);
         if($result == "true" || "false") {
-            $this -> storeSend($phone);
+            $this -> storeSend($phone, $clickId);
         } else {
-            $this -> storeSend($phone);
+            $this -> storeSend($phone, $clickId);
         }
     }
 
-    private function storeSend($phone) {
+    private function storeSend($phone, $clickId) {
         //we store all data sent for record purposes
-        $query = "INSERT INTO sentphones (phone) VALUES (:phone)";
+        $query = "INSERT INTO sentphones (phone,clickId) VALUES (:phone,:clickId)";
         try {
 			$stmt = $this -> conn -> prepare($query);
             $stmt -> execute([
-                "phone" => $phone
+                "phone" => $phone,
+                "clickId" => $clickId
             ]);
 			if($stmt -> rowCount() == 1) {
                 return true;

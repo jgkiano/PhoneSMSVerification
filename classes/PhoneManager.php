@@ -8,25 +8,28 @@ class PhoneManager extends Master
 {
     private $conn;
 
+    private $session;
+
 	function __construct() {
 		$this -> conn = $this -> getConnection();
 	}
 
     private $errors;
 
-    public function register($phone) {
+    public function register($phone, $clickId) {
         //if phone number exists
-        if($this -> phoneNumberExists($phone)) {
+        if($this -> phoneNumberExists($phone, $clickId)) {
             $this -> errors["register"] = ERRORNUMBERREGISTERED;
             return false;
         } else {
             //generate sms verification code
             $code = $this -> generateRandomCode();
+            var_dump($code);
             //if inserting into our db is successful
-            if($this -> insertNumber($phone, $code)) {
+            if($this -> insertNumber($phone, $code, $clickId)) {
                 //check if sms send is okay
                 // $this -> prepareSMS($phone, $code)
-                if($this -> prepareSMS($phone, $code)) {
+                if(true) {
                     //store the number in the session
                     return true;
                 } else {
@@ -51,7 +54,8 @@ class PhoneManager extends Master
                 "phone_valid" => 0
             ]);
             if($stmt -> rowCount() == 1) {
-                return $this -> prepareSMS($phone, $verCode);
+                return true;
+                // $this -> prepareSMS($phone, $verCode);
             } else {
                 return false;
             }
@@ -106,16 +110,18 @@ class PhoneManager extends Master
         }
     }
 
-    public function insertNumber($phone,$code) {
+    public function insertNumber($phone,$code, $clickId) {
         $query = "INSERT INTO phones (
             phone_id,
             phone_number,
             phone_verification_code,
+            phone_click_id,
             phone_code_timestamp
         ) VALUES (
             :phone_id,
             :phone_number,
             :phone_verification_code,
+            :phone_click_id,
             :phone_code_timestamp
         )";
         try {
@@ -124,6 +130,7 @@ class PhoneManager extends Master
                 "phone_id" => $this -> generatePhoneId($phone),
                 "phone_number" => $phone,
                 "phone_verification_code" => $code,
+                "phone_click_id" => $clickId,
                 "phone_code_timestamp" => date("Y-m-d H:i:s")
             ]);
 			if($stmt -> rowCount() == 1) {

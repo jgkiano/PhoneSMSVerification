@@ -4,6 +4,10 @@ require_once("classes/PhoneManager.php");
 
 require_once("classes/FormManager.php");
 
+require_once("classes/SessionManager.php");
+
+$session = new SessionManager();
+
 
 if(isset($_POST["phone"])) {
 
@@ -16,7 +20,7 @@ if(isset($_POST["phone"])) {
     $formManager = new FormManager();
 
     if (preg_match($phonePattern, $phone)) {
-        if($phoneManager -> register($phone)) {
+        if($phoneManager -> register($phone, $session -> get("clickId"))) {
             //send back this form if registration is successful
             echo $formManager -> getCodeForm($phone);
         } else {
